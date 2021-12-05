@@ -1,10 +1,10 @@
-import { getEnv } from '../getEnv'
-import type { WebhookHandler, WebhookSqsRecordBody } from '../types'
 import SQS from 'aws-sdk/clients/sqs'
-import { log } from '../tools'
+import _H from 'highland'
+import { getEnv } from '../getEnv'
 import { setEnv } from '../setEnv'
 import { syncEcwidOrderState } from '../syncEcwidOrderState'
-import _H from 'highland'
+import { log } from '../tools'
+import type { WebhookHandler, WebhookSqsRecordBody } from '../types'
 
 export interface GetWebhookHandlerParams {
   sqs: SQS
