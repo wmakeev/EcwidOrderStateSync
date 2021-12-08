@@ -83,8 +83,7 @@ export class AppStack extends Stack {
     const webhooksQueue = new Queue(this, 'WebhookQueue', {
       visibilityTimeout: Duration.millis(
         Math.round(LAMBDA_PROCESS_TIMEOUT.toMilliseconds() * 1.5)
-      ),
-      deliveryDelay: Duration.seconds(30)
+      )
     })
 
     const LambdasEnv: { [key in LambdaEnvKeys]: string } = {
