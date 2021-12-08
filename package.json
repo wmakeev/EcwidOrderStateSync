@@ -1,7 +1,7 @@
 {
   "name": "ecwid-order-state-sync",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Синхронизация статуса заказа Ecwid в соответствии со статусом заказа в МойСклад",
   "scripts": {
     "env:example": "npx sync-dotenv",
