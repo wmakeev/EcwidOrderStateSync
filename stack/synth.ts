@@ -30,7 +30,7 @@ const createAppStage = (app: App, stage: 'prod' | 'stage') => {
     /**
      * Общая конфигурация приложения
      */
-    appConfigParamName: `${lowedStage}/${APP_NAME}/config`,
+    appConfigParamName: `/${lowedStage}/${APP_NAME}/config`,
 
     /**
      * Наименование SSM параметра, содержащего Идентификатор аккаунта МойСклад
@@ -38,7 +38,7 @@ const createAppStage = (app: App, stage: 'prod' | 'stage') => {
      * параметр указан не в конфигурации, т.к. идет подписка на события с указанием
      * id аккаунта в процессе разворачивания приложения
      * */
-    moyskladAccountIdParamName: `${lowedStage}/${APP_NAME}/moyskladAccountId`,
+    moyskladAccountIdParamName: `/${lowedStage}/${APP_NAME}/moysklad-account-id`,
 
     moyskladWebhookEventBusArn: `arn:aws:events:${REGION}:${ACCOUNT}:event-bus/moysklad-webhook-events`,
 
