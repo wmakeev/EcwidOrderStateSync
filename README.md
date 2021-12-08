@@ -30,13 +30,13 @@
 
 ### [SSM Parameter Store](https://eu-west-1.console.aws.amazon.com/systems-manager/parameters/?region=eu-west-1&tab=Table)
 
-- Конфигурация приложения
+- Идентификатор аккаунта МойСклад
 
   > строка без шифрования
 
-  `/[stage]/EcwidOrderStateSync/moysklad-account-id`
+  `/[stage]/moysklad-account-id`
 
-- Идентификатор аккаунта МойСклад
+- Конфигурация приложения
 
   > JSON без шифрования
 

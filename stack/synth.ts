@@ -49,7 +49,7 @@ const createStack = (app: App, stage: 'Prod' | 'Stage') => {
      * параметр указан не в конфигурации, т.к. идет подписка на события с указанием
      * id аккаунта в процессе разворачивания приложения
      * */
-    moyskladAccountIdParamName: `/${lowedStage}/${APP_NAME}/moysklad-account-id`,
+    moyskladAccountIdParamName: `/${lowedStage}/moysklad-account-id`,
 
     /**
      * Шина на которую будет подписано приложение (вебхуки МойСклад)
