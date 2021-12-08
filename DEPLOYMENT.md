@@ -37,15 +37,13 @@ npm run test
 > For consistence use CammelCase naming convention
 
 ```bash
-APP_NAME=MoyskladWebhookFlattenStack
+APP_NAME=EcwidOrderStateSync
 
-APP_DESCRIPTION="Разбитие событий веб-хуков на отдельные сообщения"
-
-ORG=vensi
+APP_DESCRIPTION="Обновление статуса заказа Ecwid при изменении статуса в МойСклад"
 ```
 
 ```bash
-aws codecommit create-repository --repository-name $APP_NAME --repository-description $APP_DESCRIPTION --tags org=$ORG
+aws codecommit create-repository --repository-name $APP_NAME --repository-description $APP_DESCRIPTION --profile default
 ```
 
 command output:
@@ -53,15 +51,9 @@ command output:
 ```json
 {
   "repositoryMetadata": {
-    "accountId": "910985846600",
-    "repositoryId": "5f59123b-e5ee-4dcc-b920-7e5d667b0cb2",
-    "repositoryName": "MoyskladWebhookFlattenStack",
-    "repositoryDescription": "Разбитие событий веб-хуков на отдельные сообщения",
-    "lastModifiedDate": "2021-11-27T09:44:46.076000+05:00",
-    "creationDate": "2021-11-27T09:44:46.076000+05:00",
-    "cloneUrlHttp": "https://git-codecommit.eu-west-1.amazonaws.com/v1/repos/MoyskladWebhookFlattenStack",
-    "cloneUrlSsh": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/MoyskladWebhookFlattenStack",
-    "Arn": "arn:aws:codecommit:eu-west-1:910985846600:MoyskladWebhookFlattenStack"
+    ...
+    "cloneUrlSsh": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/EcwidOrderStateSync",
+    ...
   }
 }
 ```
@@ -93,13 +85,13 @@ git push --set-upstream origin master
 Once for each deploy region in current account,
 
 ```
-npx cdk bootstrap --profile default --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess
+npx cdk bootstrap --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess --profile default
 ```
 
 or specific account
 
 ```
-npx cdk bootstrap aws://ACCOUNT-NUMBER/REGION --profile default --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess
+npx cdk bootstrap aws://ACCOUNT-NUMBER/REGION --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess --profile default
 ```
 
 Get current `ACCOUNT-NUMBER`
@@ -119,5 +111,5 @@ aws configure get region --profile prod
 ### Deploy CDK stack
 
 ```bash
-npm run cdk:deploy
+PROFILE=default npm run deploy
 ```
