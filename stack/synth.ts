@@ -4,7 +4,9 @@ import { env } from './env'
 import { capitalize } from '../src/tools'
 
 const { CDK_DEFAULT_ACCOUNT: ACCOUNT, CDK_DEFAULT_REGION: REGION } = env
+
 const APP_NAME = 'EcwidOrderStateSync'
+
 const REPO_NAME = `${APP_NAME}Stack`
 
 const createAppStage = (app: App, stage: 'prod' | 'stage') => {
