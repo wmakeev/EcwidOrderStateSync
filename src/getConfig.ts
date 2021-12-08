@@ -3,6 +3,9 @@ import { cleanEnv, num, str } from 'envalid'
 
 /** Common environment variables for every handler */
 export const HandlersEnvironment = {
+  APP_NAME: str(),
+  STAGE_NAME: str(),
+  NODE_ENV: str(),
   SOURCE_QUEUE_URL: str(),
   CONFIG_PARAM_NAME: str(),
   MOYSKLAD_ACCOUNT_ID: str(),

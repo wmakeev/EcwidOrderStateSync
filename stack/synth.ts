@@ -1,33 +1,42 @@
 import { App, Duration } from '@aws-cdk/core'
 import { PipelineStack } from './PipelineStack'
 import { env } from './env'
-import { capitalize } from '../src/tools'
 
+// Используем текущий регион
 const { CDK_DEFAULT_ACCOUNT: ACCOUNT, CDK_DEFAULT_REGION: REGION } = env
 
+/** Название приложения */
 const APP_NAME = 'EcwidOrderStateSync'
 
-const REPO_NAME = `${APP_NAME}Stack`
-
-const createAppStage = (app: App, stage: 'prod' | 'stage') => {
+/**
+ * Инициализирует стек приложения для указанного stage
+ *
+ * @param app Инстанс App
+ * @param stage Stage приложение
+ * @returns Стек
+ */
+const createStack = (app: App, stage: 'Prod' | 'Stage') => {
   const lowedStage = stage.toLowerCase()
 
-  return new PipelineStack(app, `${capitalize(stage)}-${APP_NAME}CI`, {
+  return new PipelineStack(app, `${stage}-${APP_NAME}CI`, {
     env: {
       account: ACCOUNT,
       region: REGION
     },
+
+    /** Описание текущего стека */
     description: `${APP_NAME} ${lowedStage} CI stack`,
 
     // Config
 
+    /** Название приложения */
     appName: APP_NAME,
 
-    appStageName: capitalize(stage),
+    /** Stage приложения */
+    appStageName: stage,
 
-    sourceCodeCommitRepoArn: `arn:aws:codecommit:${REGION}:${ACCOUNT}:${REPO_NAME}`,
-
-    sourceBranch: stage === 'prod' ? 'master' : 'stage',
+    /** Ветка репозитория из которой будет разворачиватся текущий stage приложения */
+    sourceBranch: stage === 'Prod' ? 'master' : 'stage',
 
     /**
      * Общая конфигурация приложения
@@ -42,13 +51,27 @@ const createAppStage = (app: App, stage: 'prod' | 'stage') => {
      * */
     moyskladAccountIdParamName: `/${lowedStage}/${APP_NAME}/moysklad-account-id`,
 
-    moyskladWebhookEventBusArn: `arn:aws:events:${REGION}:${ACCOUNT}:event-bus/moysklad-webhook-events`,
+    /**
+     * Шина на которую будет подписано приложение (вебхуки МойСклад)
+     */
+    moyskladWebhookEventBusName: 'moysklad-webhook-events',
 
+    /**
+     * Логин и пароль МойСклад
+     */
     moyskladAuthSecretName: `${lowedStage}/moysklad/auth`,
 
+    /**
+     * Ключи Ecwid
+     */
     ecwidAuthSecretName: `${lowedStage}/ecwid/auth`,
 
     // npmTokenSecretName: 'npm/token',
+
+    /**
+     * Максимальное кол-во веб-хуков обрабатываемое за раз одной функцией
+     */
+    queueBatchSize: 10,
 
     webhookHandlerLambdaTimeoutSeconds: Duration.seconds(60)
   })
@@ -56,7 +79,8 @@ const createAppStage = (app: App, stage: 'prod' | 'stage') => {
 
 const app = new App()
 
-createAppStage(app, 'prod')
-createAppStage(app, 'stage')
+createStack(app, 'Prod')
+
+createStack(app, 'Stage')
 
 app.synth()

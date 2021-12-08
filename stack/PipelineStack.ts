@@ -1,47 +1,29 @@
 import { LinuxBuildImage } from '@aws-cdk/aws-codebuild'
 import { Repository } from '@aws-cdk/aws-codecommit'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
-import { Construct, Duration, Stack, StackProps } from '@aws-cdk/core'
+import { Construct, Stack } from '@aws-cdk/core'
 import {
   CodeBuildStep,
   CodePipeline,
   CodePipelineSource
 } from '@aws-cdk/pipelines'
+import type { AppStackProps } from './AppStack'
 import { PipelineStage } from './PipelineStage'
 
-export interface PipelineStackConfig extends StackProps {
-  /** Application name */
-  appName: string
-
-  /** Application stage name (`Prod`, `Dev`) */
-  appStageName: string
-
-  /** Source CodeCommit repository ARN */
-  sourceCodeCommitRepoArn: string
-
+export interface PipelineStackProps extends AppStackProps {
   /** Source repository branch to deploy */
   sourceBranch: string
 
-  appConfigParamName: string
-
-  moyskladAccountIdParamName: string
-
-  /** Event bus to get Moysklad webhooks from */
-  moyskladWebhookEventBusArn: string
-
-  moyskladAuthSecretName: string
-
-  ecwidAuthSecretName: string
-
   /** (optional) NPM token to install private dependencies */
   npmTokenSecretName?: string
-
-  /** Webhook handler timeout (default: 60 sec) */
-  webhookHandlerLambdaTimeoutSeconds?: Duration
 }
 
 export class PipelineStack extends Stack {
-  constructor(scope: Construct, id: string, props: PipelineStackConfig) {
+  constructor(
+    scope: Construct,
+    id: `${'Prod' | 'Stage'}-${string}`,
+    props: PipelineStackProps
+  ) {
     const stackPrefix = `${props.appStageName}-`
 
     if (id.indexOf(stackPrefix) !== 0) {
@@ -52,10 +34,10 @@ export class PipelineStack extends Stack {
 
     super(scope, id, props)
 
-    const codeCommitRepository = Repository.fromRepositoryArn(
+    const codeCommitRepository = Repository.fromRepositoryName(
       this,
       'CodeCommitRepository',
-      props.sourceCodeCommitRepoArn
+      `${props.appName}Stack`
     )
 
     const codeBuildStep = new CodeBuildStep('SynthStep', {
@@ -63,7 +45,9 @@ export class PipelineStack extends Stack {
         codeCommitRepository,
         props.sourceBranch
       ),
+
       installCommands: ['npm install -g aws-cdk json'],
+
       commands: [
         'echo "Node.js $(node -v), NPM $(npm -v)"',
         'touch .npmrc',
@@ -76,10 +60,12 @@ export class PipelineStack extends Stack {
         'npm ci',
         'npm run test'
       ],
+
       buildEnvironment: {
         /** node v14.15.4, npm v6.14.10 */
         buildImage: LinuxBuildImage.STANDARD_5_0
       },
+
       env: {
         ...(props.npmTokenSecretName
           ? { NPM_TOKEN_SECRET_NAME: props.npmTokenSecretName }
@@ -92,16 +78,7 @@ export class PipelineStack extends Stack {
       crossAccountKeys: false
     })
 
-    const stage = new PipelineStage(this, 'Prod', {
-      appName: props.appName,
-      moyskladWebhookEventBusArn: props.moyskladWebhookEventBusArn,
-      appConfigParamName: props.appConfigParamName,
-      moyskladAccountIdParamName: props.moyskladAccountIdParamName,
-      moyskladAuthSecretName: props.moyskladAuthSecretName,
-      ecwidAuthSecretName: props.ecwidAuthSecretName,
-      webhookHandlerLambdaTimeoutSeconds:
-        props.webhookHandlerLambdaTimeoutSeconds
-    })
+    const stage = new PipelineStage(this, props.appStageName, props)
 
     pipeline.addStage(stage)
 

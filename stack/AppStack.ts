@@ -24,22 +24,22 @@ type LambdaEnvKeys = keyof typeof HandlersEnvironment
 
 export interface AppStackProps extends StackProps {
   appName: string
+  appStageName: 'Prod' | 'Stage'
+  moyskladWebhookEventBusName: string
   appConfigParamName: string
   moyskladAccountIdParamName: string
   moyskladAuthSecretName: string
-  moyskladWebhookEventBusArn: string
   ecwidAuthSecretName: string
+  queueBatchSize: number
   webhookHandlerLambdaTimeoutSeconds?: Duration
 }
-
-const BATCH_SIZE = 10
 
 export class AppStack extends Stack {
   constructor(scope: Construct, id: string, props: AppStackProps) {
     super(scope, id, {
+      ...props,
       description:
-        'Subscribes to Moysklad webhooks and republish each event from batch as separate hooks',
-      ...props
+        'Subscribes to Moysklad webhooks and republish each event from batch as separate hooks'
     })
 
     const LAMBDA_PROCESS_TIMEOUT =
@@ -74,10 +74,10 @@ export class AppStack extends Stack {
     })
 
     /** Raw webhooks source */
-    const webhookEventBus = EventBus.fromEventBusArn(
+    const webhookEventBus = EventBus.fromEventBusName(
       this,
       'WebhookEventBus',
-      props.moyskladWebhookEventBusArn
+      props.moyskladWebhookEventBusName
     )
 
     const webhooksQueue = new Queue(this, 'WebhookQueue', {
@@ -88,12 +88,15 @@ export class AppStack extends Stack {
     })
 
     const LambdasEnv: { [key in LambdaEnvKeys]: string } = {
+      APP_NAME: props.appName,
+      STAGE_NAME: props.appStageName,
+      NODE_ENV: props.appStageName === 'Prod' ? 'production' : 'staging',
       SOURCE_QUEUE_URL: webhooksQueue.queueUrl,
       CONFIG_PARAM_NAME: props.appConfigParamName,
       MOYSKLAD_ACCOUNT_ID: moyskladAccountIdParamToken,
       MOYSKLAD_AUTH_SECRET_NAME: props.moyskladAuthSecretName,
       ECWID_AUTH_SECRET_NAME: props.ecwidAuthSecretName,
-      BATCH_SIZE: String(BATCH_SIZE)
+      BATCH_SIZE: String(props.queueBatchSize)
     }
 
     const commonLambdaConfig: FunctionProps = {
@@ -128,7 +131,7 @@ export class AppStack extends Stack {
     webhooksQueueHandlerLambda.addEventSource(
       new SqsEventSource(webhooksQueue, {
         maxBatchingWindow: Duration.seconds(30),
-        batchSize: BATCH_SIZE
+        batchSize: props.queueBatchSize
       })
     )
 
