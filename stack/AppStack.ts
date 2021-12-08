@@ -11,9 +11,10 @@ import { SqsEventSource } from '@aws-cdk/aws-lambda-event-sources'
 import { Queue } from '@aws-cdk/aws-sqs'
 import { Construct, Duration, Stack, StackProps } from '@aws-cdk/core'
 import { webhookHandler } from '../src'
-import type { HandlersEnvironment } from '../src/getEnv'
+import type { HandlersEnvironment } from '../src/getConfig'
 import { capitalize } from '../src/tools'
 import { Secret } from '@aws-cdk/aws-secretsmanager'
+import { StringParameter } from '@aws-cdk/aws-ssm'
 
 /** Lambda timeout */
 const LAMBDA_PROCESS_DEFAULT_TIMEOUT = Duration.seconds(60)
@@ -23,7 +24,8 @@ type LambdaEnvKeys = keyof typeof HandlersEnvironment
 
 export interface AppStackProps extends StackProps {
   appName: string
-  moyskladAccountId: string
+  appConfigParamName: string
+  moyskladAccountIdParamName: string
   moyskladAuthSecretName: string
   moyskladWebhookEventBusArn: string
   ecwidAuthSecretName: string
@@ -55,6 +57,17 @@ export class AppStack extends Stack {
       props.ecwidAuthSecretName
     )
 
+    const appConfigParam = StringParameter.fromStringParameterName(
+      this,
+      'AppConfigParam',
+      props.appConfigParamName
+    )
+
+    const moyskladAccountIdParamToken = StringParameter.valueForStringParameter(
+      this,
+      props.moyskladAccountIdParamName
+    )
+
     const dependenciesLayer = new LayerVersion(this, `${props.appName}Deps`, {
       code: Code.fromAsset('./layer/dependencies/'),
       compatibleRuntimes: [Runtime.NODEJS_14_X]
@@ -76,7 +89,8 @@ export class AppStack extends Stack {
 
     const LambdasEnv: { [key in LambdaEnvKeys]: string } = {
       SOURCE_QUEUE_URL: webhooksQueue.queueUrl,
-      MOYSKLAD_ACCOUNT_ID: props.moyskladAccountId,
+      CONFIG_PARAM_NAME: props.appConfigParamName,
+      MOYSKLAD_ACCOUNT_ID: moyskladAccountIdParamToken,
       MOYSKLAD_AUTH_SECRET_NAME: props.moyskladAuthSecretName,
       ECWID_AUTH_SECRET_NAME: props.ecwidAuthSecretName,
       BATCH_SIZE: String(BATCH_SIZE)
@@ -131,7 +145,7 @@ export class AppStack extends Stack {
       detailType: ['MoyskladFlattenedWebhook'],
       detail: {
         event: {
-          accountId: [props.moyskladAccountId],
+          accountId: [moyskladAccountIdParamToken],
           meta: {
             type: ['customerorder']
           },
@@ -151,5 +165,6 @@ export class AppStack extends Stack {
 
     moyskladSecret.grantRead(webhooksQueueHandlerLambda)
     ecwidSecret.grantRead(webhooksQueueHandlerLambda)
+    appConfigParam.grantRead(webhooksQueueHandlerLambda)
   }
 }

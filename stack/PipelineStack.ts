@@ -22,7 +22,9 @@ export interface PipelineStackConfig extends StackProps {
   /** Source repository branch to deploy */
   sourceBranch: string
 
-  moyskladAccountId: string
+  appConfigParamName: string
+
+  moyskladAccountIdParamName: string
 
   /** Event bus to get Moysklad webhooks from */
   moyskladWebhookEventBusArn: string
@@ -86,13 +88,15 @@ export class PipelineStack extends Stack {
     })
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
-      synth: codeBuildStep
+      synth: codeBuildStep,
+      crossAccountKeys: false
     })
 
     const stage = new PipelineStage(this, 'Prod', {
       appName: props.appName,
       moyskladWebhookEventBusArn: props.moyskladWebhookEventBusArn,
-      moyskladAccountId: props.moyskladAccountId,
+      appConfigParamName: props.appConfigParamName,
+      moyskladAccountIdParamName: props.moyskladAccountIdParamName,
       moyskladAuthSecretName: props.moyskladAuthSecretName,
       ecwidAuthSecretName: props.ecwidAuthSecretName,
       webhookHandlerLambdaTimeoutSeconds:

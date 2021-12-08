@@ -1,6 +1,6 @@
 import SQS from 'aws-sdk/clients/sqs'
 import _H from 'highland'
-import { getEnv } from '../getEnv'
+import { getConfig, getEnv } from '../getConfig'
 import { setEnv } from '../setEnv'
 import { syncEcwidOrderState } from '../syncEcwidOrderState'
 import { log } from '../tools'
@@ -22,6 +22,7 @@ export function getWebhookHandler(
     await setEnv()
 
     const { SOURCE_QUEUE_URL } = getEnv()
+    const config = getConfig()
 
     if (!Array.isArray(event.Records)) {
       throw new Error('Incoming event not includes Records array property')
@@ -45,7 +46,7 @@ export function getWebhookHandler(
       .map(async ({ customerOrderHref, receiptHandle }) => {
         await syncEcwidOrderState({
           moyskladCustomerOrderHref: customerOrderHref,
-          ecwidOrderIdUserFieldName: 'ПОКА ЗАХАРДКОДИТЬ'
+          ecwidOrderIdUserFieldName: config.ecwidOrderIdUserFieldName
         })
 
         await sqs
