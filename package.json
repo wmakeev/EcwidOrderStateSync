@@ -9,17 +9,17 @@
     "lint": "eslint . --fix",
     "compile:dev": "tsc",
     "compile": "tsc --build tsconfig.prod.json",
-    "cdk:synth": "npx cdk synth",
     "build:layer": "touch .npmrc && LAYER_DIR=layer/dependencies && rm -rf $LAYER_DIR && mkdir -p \"${LAYER_DIR}/nodejs\" && cp package.json \"${LAYER_DIR}/nodejs\" && cp .npmrc \"${LAYER_DIR}/nodejs\" && npm install --production --prefix \"${LAYER_DIR}/nodejs\" && rm \"${LAYER_DIR}/nodejs/package.json\" && rm \"${LAYER_DIR}/nodejs/package-lock.json\" && rm \"${LAYER_DIR}/nodejs/.npmrc\"",
     "build:app:dev": "npm run lint && npm run compile:dev",
     "build:app": "npm run cleanup && npm run lint && npm run compile",
+    "cdk:synth": "npx cdk synth",
     "build:stack": "npm run cdk:synth",
     "build": "npm run build:app && npm run build:layer && npm run build:stack",
     "test:app": "npm run build:app && NODE_OPTIONS=--enable-source-maps node -r dotenv/config ./build/test",
     "test": "npm run build && NODE_OPTIONS=--enable-source-maps node ./build/test",
     "version": "npm run env:example && auto-changelog -p && git add CHANGELOG.md .env.example",
     "release": "np",
-    "deploy": "npx cdk deploy --profile $PROFILE"
+    "deploy": "npx cdk deploy --all --profile $PROFILE"
   },
   "engines": {
     "node": ">=14"
