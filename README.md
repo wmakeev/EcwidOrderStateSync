@@ -1,4 +1,4 @@
-# EcwidOrderStateSync
+# EcwidOrderStateSyncStack
 
 > Синхронизация статуса заказа Ecwid в соответствии со статусом заказа в МойСклад
 

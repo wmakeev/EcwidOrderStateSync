@@ -43,7 +43,7 @@ APP_DESCRIPTION="Обновление статуса заказа Ecwid при �
 ```
 
 ```bash
-aws codecommit create-repository --repository-name $APP_NAME --repository-description $APP_DESCRIPTION --profile default
+aws codecommit create-repository --repository-name ${APP_NAME}Stack --repository-description $APP_DESCRIPTION --profile default
 ```
 
 command output:
@@ -52,7 +52,7 @@ command output:
 {
   "repositoryMetadata": {
     ...
-    "cloneUrlSsh": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/EcwidOrderStateSync",
+    "cloneUrlSsh": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/EcwidOrderStateSyncStack",
     ...
   }
 }
