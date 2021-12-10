@@ -17,7 +17,7 @@ export function getWebhookHandler(
   const { sqs, log } = params
 
   const webhookHandler: WebhookHandler = async event => {
-    log('info', { event })
+    console.log('Event:', event)
 
     await setEnv()
 

@@ -14,8 +14,8 @@ export async function setEnv() {
   } = getEnv()
 
   const [moyskladAuthJson, ecwidAuthJson, appConfigJson] = await Promise.all([
-    getSecret(ECWID_AUTH_SECRET_NAME),
     getSecret(MOYSKLAD_AUTH_SECRET_NAME),
+    getSecret(ECWID_AUTH_SECRET_NAME),
     getParam(CONFIG_PARAM_NAME)
   ])
 
