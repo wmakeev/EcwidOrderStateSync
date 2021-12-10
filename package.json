@@ -19,6 +19,7 @@
     "test": "npm run build && NODE_OPTIONS=--enable-source-maps node ./build/test",
     "version": "npm run env:example && auto-changelog -p && git add CHANGELOG.md .env.example",
     "release": "np",
+    "release:stage": "npm run test:app && npm run build:stack && git push origin stage",
     "deploy": "npx cdk deploy --all --profile $PROFILE"
   },
   "engines": {
