@@ -84,6 +84,6 @@
     "lodash.memoize": "^4.1.2",
     "lodash.once": "^4.1.1",
     "moysklad-instance": "^3.0.2",
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.7"
   }
 }
